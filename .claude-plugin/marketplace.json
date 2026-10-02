@@ -1,0 +1,15 @@
+{
+  "name": "getedge",
+  "description": "Edge plugins for Claude Code",
+  "owner": {
+    "name": "Edge",
+    "url": "https://getedge.cc"
+  },
+  "plugins": [
+    {
+      "name": "edge",
+      "source": "./plugins/claude/edge",
+      "description": "Finds a vetted expert skill for specialist work. Hosted Edge connector plus the skill that tells Claude when to use it."
+    }
+  ]
+}

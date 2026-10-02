@@ -1,0 +1,20 @@
+{
+  "name": "getedge",
+  "interface": {
+    "displayName": "Edge"
+  },
+  "plugins": [
+    {
+      "name": "edge",
+      "source": {
+        "source": "local",
+        "path": "./plugins/openai/edge"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

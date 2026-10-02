@@ -1,0 +1,118 @@
+{
+  "name": "edge",
+  "version": "0.1.0",
+  "description": "Finds and loads a security-screened expert skill for specialist work (documents, slides, data, design, media, frameworks, security, research) from about 130,000 public agent skills. Bundles Edge's hosted MCP server (directory profile) and a small skill that tells the model when to use it.",
+  "author": {
+    "name": "Floom, Inc.",
+    "url": "https://getedge.cc"
+  },
+  "homepage": "https://getedge.cc/docs/",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "agent-skills",
+    "skill-discovery",
+    "workflows",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Edge Skills",
+    "shortDescription": "Expert skills for your work",
+    "longDescription": "Edge finds a fitting expert skill for a specialist task among about 130,000 public agent skills and loads its instructions for that task only. Use it for business writing, data analysis and charts, slides, documents and spreadsheets, images, video and UI design, framework or API work, security review, research methods, and scientific or engineering computation. It skips routine edits, simple facts and short replies, and it is not used when you ask ChatGPT not to use it.\n\nSkills are written by third parties. Edge screens results against available independent scanner audits and its own checks, withholds skills that fail its security gate, and returns skill text as reference material only: nothing is installed and Edge runs nothing. Automated screening is not a guarantee. Long skills come in parts of about 10,000 characters.\n\nEach search sends Edge the short task description and keywords that ChatGPT writes; file contents and conversation history are not sent. Search text is kept to improve Edge; email fede@getedge.cc to request deletion within 30 days. Ratings and issue reports are sent only when you ask or agree. No account is needed.",
+    "developerName": "Floom, Inc.",
+    "category": "Productivity",
+    "capabilities": [
+      "Find an expert skill for a task",
+      "Load a skill's instructions for one task",
+      "Show a skill's security audits"
+    ],
+    "websiteURL": "https://getedge.cc/",
+    "supportURL": "https://getedge.cc/support/",
+    "privacyPolicyURL": "https://getedge.cc/docs/privacy/",
+    "termsOfServiceURL": "https://getedge.cc/terms/",
+    "defaultPrompt": [
+      "Turn these product and competitor notes into a sales battlecard.",
+      "Turn my monthly revenue CSV into a short decision brief with a chart.",
+      "Plan a launch brief for our new product feature."
+    ],
+    "brandColor": "#154CFF",
+    "brandColorDark": "#527EFF",
+    "composerIcon": "./assets/logo.svg",
+    "logo": "./assets/logo.svg"
+  },
+  "extensions": {
+    "com.openai": {
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Finds and loads a skill for a sales deliverable",
+              "prompt": "Turn these product and competitor notes into a sales battlecard with objections and responses.",
+              "tools_triggered": "find_skill, use_skill",
+              "expected_behavior": "Calls find_skill with the task, loads a fitting sales-enablement skill with use_skill, tells the user which skill it loaded, then writes the battlecard using the skill as reference.",
+              "file_attachment_urls": [
+                "https://buildingopen.org/share/edge-review/openai-submit/files/competitor-notes.md"
+              ]
+            },
+            {
+              "description": "Finds a skill for data analysis and charts",
+              "prompt": "Analyze this monthly revenue CSV and make a clear chart of the trend.",
+              "tools_triggered": "find_skill, use_skill",
+              "expected_behavior": "Calls find_skill for the analysis, loads a data-analysis or charting skill if one fits and names it, then does the analysis.",
+              "file_attachment_urls": [
+                "https://buildingopen.org/share/edge-review/openai-submit/files/monthly-revenue.csv"
+              ]
+            },
+            {
+              "description": "Finds a skill for a named framework",
+              "prompt": "Write a Prisma schema migration that splits the users table into users and profiles.",
+              "tools_triggered": "find_skill, use_skill",
+              "expected_behavior": "Calls find_skill naming Prisma, loads a fitting Prisma skill if one fits and names it, then writes the migration. It does not run commands against a database without asking."
+            },
+            {
+              "description": "Finds a skill for a security review",
+              "prompt": "Do a security review of this Express login handler for OWASP issues.",
+              "tools_triggered": "find_skill, use_skill",
+              "expected_behavior": "Calls find_skill for a security-review workflow, loads it if it fits and names it, then reviews the handler.",
+              "file_attachment_urls": [
+                "https://buildingopen.org/share/edge-review/openai-submit/files/login-handler.js"
+              ]
+            },
+            {
+              "description": "Shows audits for a named skill",
+              "prompt": "Show the security audits Edge has for anthropics/skills pptx.",
+              "tools_triggered": "scan_skill",
+              "expected_behavior": "Calls scan_skill with the catalog skill and reports its audit findings and whether Edge serves it."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Simple arithmetic",
+              "prompt": "What is 15% of 2,400?",
+              "expected_behavior": "Arithmetic needs no specialist workflow. Answers directly (360) and calls no Edge tool."
+            },
+            {
+              "description": "Short routine reply",
+              "prompt": "Reply \"thanks, sounds good\" to this meeting confirmation.",
+              "expected_behavior": "A short routine reply needs no specialist workflow. Writes the reply directly and calls no Edge tool."
+            },
+            {
+              "description": "Explicit request not to use Edge",
+              "prompt": "Without using Edge, write a slide outline for my team update.",
+              "expected_behavior": "The user asked not to use Edge. Writes the outline without Edge and calls no Edge tool."
+            }
+          ]
+        },
+        "demo_recording_url": "https://buildingopen.org/share/edge-review/openai-submit/demo/",
+        "commerce": false,
+        "commerce_description": "Edge does not sell products or process payments."
+      },
+      "publication": {
+        "release_notes": "Initial release: find_skill finds a security-screened expert skill for a specialist task, use_skill loads it for that task only as third-party reference content, and scan_skill shows a skill's security audits. Uses Edge's directory profile at getedge.cc/mcp/directory. Bundles a companion skill that tells the model when to use Edge."
+      }
+    }
+  },
+  "repository": "https://github.com/getedgehq/edge-plugins"
+}

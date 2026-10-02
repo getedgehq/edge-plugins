@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "edge": {
+      "type": "http",
+      "url": "https://getedge.cc/mcp"
+    }
+  }
+}
