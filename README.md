@@ -4,7 +4,7 @@ Edge finds a vetted expert skill for a specialist task among about 130,000 publi
 
 | Path | What it is |
 |---|---|
-| `plugins/claude/edge/` | Claude plugin: `.claude-plugin/plugin.json`, `.mcp.json`, `skills/edge/SKILL.md`, `README.md` |
+| `plugins/claude/edge/` | Claude plugin: `.claude-plugin/plugin.json`, `.mcp.json`, `skills/edge/SKILL.md`, `hooks/`, `README.md` |
 | `plugins/openai/edge/` | Codex and ChatGPT plugin: `.codex-plugin/plugin.json`, `.mcp.json`, `skills/edge/SKILL.md`, `README.md`, `assets/logo.svg` |
 | `.claude-plugin/marketplace.json` | Claude Code marketplace `getedge` |
 | `.agents/plugins/marketplace.json` | Codex marketplace `getedge` |
@@ -29,7 +29,7 @@ Claude app and other MCP hosts: add a custom connector with the URL `https://get
 
 ## What is sent, and where
 
-Each plugin connects only to Edge at getedge.cc. A search sends a one-sentence task description and a few keywords written by the model; it does not attach files, paths or the conversation. To rank results, Edge's backend sends the search text and candidate skill descriptions to its ranking service, TypeSafe (api.typesafe.ai). Loading a skill returns third-party instructions that Edge has screened against scanner audits; read them before running any command they contain. What Edge stores, for how long, and how to delete it: https://getedge.cc/privacy/. Connector data flow: https://getedge.cc/docs/privacy/.
+Each plugin connects only to Edge at getedge.cc. A search sends a one-sentence task description and a few keywords written by the model; it does not attach files, paths or the conversation. In Claude Code, after Edge setup, the Claude plugin also sends the random install ID setup created, so `forget` can delete those searches. To rank results, Edge's backend sends the search text and candidate skill descriptions to its ranking service, TypeSafe (api.typesafe.ai). Loading a skill returns third-party instructions that Edge has screened against scanner audits; read them before running any command they contain. What Edge stores, for how long, and how to delete it: https://getedge.cc/privacy/. Connector data flow: https://getedge.cc/docs/privacy/.
 
 ## Support
 
