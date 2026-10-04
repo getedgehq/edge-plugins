@@ -1,8 +1,7 @@
 {
   "mcpServers": {
     "edge": {
-      "url": "https://getedge.cc/mcp/directory",
-      "omit_tools_from": ["deferred"]
+      "url": "https://getedge.cc/mcp/directory"
     }
   }
 }

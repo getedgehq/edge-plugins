@@ -29,7 +29,7 @@ Claude app and other MCP hosts: add a custom connector with the URL `https://get
 
 ## What is sent, and where
 
-Each plugin connects only to Edge at getedge.cc. A search sends a one-sentence task description and a few keywords written by the model; it does not attach files, paths or the conversation. To rank results, Edge's backend sends the search text and candidate skill descriptions to its ranking service, TypeSafe (api.typesafe.ai). Loading a skill returns third-party instructions that Edge has screened against scanner audits; read them before running any command they contain. The full data flow and retention are in the connector privacy policy: https://getedge.cc/docs/privacy/.
+Each plugin connects only to Edge at getedge.cc. A search sends a one-sentence task description and a few keywords written by the model; it does not attach files, paths or the conversation. To rank results, Edge's backend sends the search text and candidate skill descriptions to its ranking service, TypeSafe (api.typesafe.ai). Loading a skill returns third-party instructions that Edge has screened against scanner audits; read them before running any command they contain. What Edge stores, for how long, and how to delete it: https://getedge.cc/privacy/. Connector data flow: https://getedge.cc/docs/privacy/.
 
 ## Support
 

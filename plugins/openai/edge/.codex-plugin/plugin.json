@@ -1,12 +1,13 @@
 {
   "name": "edge",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Finds and loads a security-screened expert skill for specialist work (documents, slides, data, design, media, frameworks, security, research) from about 130,000 public agent skills. Bundles Edge's hosted MCP server (directory profile) and a small skill that tells the model when to use it.",
   "author": {
     "name": "Floom, Inc.",
     "url": "https://getedge.cc"
   },
   "homepage": "https://getedge.cc/docs/",
+  "repository": "https://github.com/getedgehq/edge-plugins",
   "license": "MIT",
   "keywords": [
     "skills",
@@ -20,7 +21,7 @@
   "interface": {
     "displayName": "Edge Skills",
     "shortDescription": "Expert skills for your work",
-    "longDescription": "Edge finds a fitting expert skill for a specialist task among about 130,000 public agent skills and loads its instructions for that task only. Use it for business writing, data analysis and charts, slides, documents and spreadsheets, images, video and UI design, framework or API work, security review, research methods, and scientific or engineering computation. It skips routine edits, simple facts and short replies, and it is not used when you ask ChatGPT not to use it.\n\nSkills are written by third parties. Edge screens results against available independent scanner audits and its own checks, withholds skills that fail its security gate, and returns skill text as reference material only: nothing is installed and Edge runs nothing. Automated screening is not a guarantee. Long skills come in parts of about 10,000 characters.\n\nEach search sends Edge the short task description and keywords that ChatGPT writes; file contents and conversation history are not sent. Search text is kept to improve Edge; email fede@getedge.cc to request deletion within 30 days. Ratings and issue reports are sent only when you ask or agree. No account is needed.",
+    "longDescription": "Edge finds a fitting expert skill for a specialist task among about 130,000 public agent skills and loads its instructions for that task only. Use it for business writing, data analysis and charts, slides, documents and spreadsheets, images, video and UI design, framework or API work, security review, research methods, and scientific or engineering computation. It skips routine edits, simple facts and short replies, and it is not used when you ask ChatGPT not to use it.\n\nSkills are written by third parties. Edge screens results against available independent scanner audits and its own checks, withholds skills that fail its security gate, and returns skill text as reference material only: nothing is installed and Edge runs nothing. Automated screening is not a guarantee. Long skills come in parts of about 10,000 characters.\n\nEach search sends Edge the short task description and keywords that ChatGPT writes; file contents and conversation history are not sent. Edge removes emails, links, keys and similar details, then keeps the search text with no scheduled expiry to improve Edge. Ratings and issue reports are sent only when you ask or agree. No account is needed. What is stored and how to delete it: getedge.cc/privacy.",
     "developerName": "Floom, Inc.",
     "category": "Productivity",
     "capabilities": [
@@ -30,7 +31,7 @@
     ],
     "websiteURL": "https://getedge.cc/",
     "supportURL": "https://getedge.cc/support/",
-    "privacyPolicyURL": "https://getedge.cc/docs/privacy/",
+    "privacyPolicyURL": "https://getedge.cc/privacy/",
     "termsOfServiceURL": "https://getedge.cc/terms/",
     "defaultPrompt": [
       "Turn these product and competitor notes into a sales battlecard.",
@@ -105,7 +106,7 @@
             }
           ]
         },
-        "demo_recording_url": "https://buildingopen.org/share/edge-review/openai-submit/demo/",
+        "demo_recording_url": "https://buildingopen.org/share/edge-review/openai-submit/demo/edge-chatgpt-demo-trimmed.mp4",
         "commerce": false,
         "commerce_description": "Edge does not sell products or process payments."
       },
@@ -113,6 +114,5 @@
         "release_notes": "Initial release: find_skill finds a security-screened expert skill for a specialist task, use_skill loads it for that task only as third-party reference content, and scan_skill shows a skill's security audits. Uses Edge's directory profile at getedge.cc/mcp/directory. Bundles a companion skill that tells the model when to use Edge."
       }
     }
-  },
-  "repository": "https://github.com/getedgehq/edge-plugins"
+  }
 }
