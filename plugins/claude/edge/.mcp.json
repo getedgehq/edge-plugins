@@ -2,7 +2,8 @@
   "mcpServers": {
     "edge": {
       "type": "http",
-      "url": "https://getedge.cc/mcp"
+      "url": "https://getedge.cc/mcp",
+      "headersHelper": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-install.sh\""
     }
   }
 }

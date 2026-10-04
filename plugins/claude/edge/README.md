@@ -8,6 +8,7 @@ Edge finds a vetted expert skill for a specialist task among about 130,000 publi
 - **The `edge` skill**, a short instruction file. Its description tells the model when to call Edge: at the start of a specialist task, once. Its body says to read the result, load a clearly fitting skill, and otherwise continue without Edge. If the connector is missing, it tells you how to add it.
 
 - **In Claude Code, two small hooks.** On a prompt that looks like specialist work, one adds a fixed sentence asking the model to check Edge first (set `EDGE_NUDGE=off` to silence it). The other, off unless `EDGE_VALUE_HOOK=on`, shows which skill Edge loaded. Neither sends anything anywhere.
+- **In Claude Code, a headers helper** (`hooks/edge-install.sh`). If you ran Edge setup (`npx @getedge/mcp setup claude`), it reads the random install ID setup saved in `~/.config/edge/install-id` and adds it to the connector's requests, so your searches belong to that install and `npx @getedge/mcp forget` deletes them. It never creates an ID; without setup nothing is added. Set `EDGE_INSTALL_HEADER=off` to stop it.
 
 In the Claude app, adding `Before specialist work, call Edge's find_skill.` to your personal preferences makes Claude check Edge reliably.
 
@@ -20,7 +21,7 @@ The plugin connects only to Edge at getedge.cc. To rank results, Edge's backend 
 - `find_skill` sends a one-sentence description of the task and a few keywords, written by the model, which is told to leave out secrets and private content. The connector does not attach file contents, paths or the conversation.
 - `use_skill` sends the chosen skill's identifier and the search's request id, and returns that skill's instructions from Edge's scanned copy.
 - `rate_skill` and `report_issue` send the rating (an outcome and, for a skill that was applied, a 0-10 score) or the report you agree to send, with an optional short note.
-- Each request carries the MCP session id and the client label `remote-mcp`. The privacy policy describes what Edge stores.
+- Each request carries the MCP session id and the client label `remote-mcp`, and in Claude Code after setup the install ID described above. The privacy policy describes what Edge stores.
 
 Edge screens skills against independent scanner audits and withholds those that fail its security gate. Read a loaded skill's commands before running them.
 
