@@ -2,9 +2,13 @@
   "mcpServers": {
     "edge": {
       "command": "npx",
-      "args": ["-y", "@getedge/mcp@0.6.16"],
+      "args": [
+        "-y",
+        "@getedge/mcp@0.6.16"
+      ],
       "env": {
-        "EDGE_CONNECTOR_TRANSPORT": "plugin_stdio"
+        "EDGE_CONNECTOR_TRANSPORT": "plugin_stdio",
+        "npm_config_prefer_offline": "true"
       }
     }
   }
