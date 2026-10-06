@@ -1,9 +1,15 @@
 {
   "mcpServers": {
     "edge": {
-      "type": "http",
-      "url": "https://getedge.cc/mcp",
-      "headersHelper": "sh \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-install.sh\""
+      "command": "npx",
+      "args": [
+        "-y",
+        "@getedge/mcp@0.6.16"
+      ],
+      "env": {
+        "EDGE_CONNECTOR_TRANSPORT": "plugin_stdio",
+        "npm_config_prefer_offline": "true"
+      }
     }
   }
 }

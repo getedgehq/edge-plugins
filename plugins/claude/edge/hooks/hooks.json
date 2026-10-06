@@ -1,10 +1,37 @@
 {
   "hooks": {
     "UserPromptSubmit": [
-      { "hooks": [{ "type": "command", "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-nudge.mjs\" || true", "timeout": 2 }] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-nudge.mjs\" || true",
+            "timeout": 2
+          }
+        ]
+      }
     ],
     "PostToolUse": [
-      { "matcher": "mcp__plugin_edge_edge__use_skill", "hooks": [{ "type": "command", "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-value.mjs\" || true", "timeout": 5 }] }
+      {
+        "matcher": "mcp__plugin_edge_edge__use_skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-value.mjs\" || true",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Skill|Read|mcp__plugin_edge_edge__find_skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v node >/dev/null 2>&1 && node \"${CLAUDE_PLUGIN_ROOT}/hooks/edge-activation.mjs\" || true",
+            "timeout": 2
+          }
+        ]
+      }
     ]
   }
 }
