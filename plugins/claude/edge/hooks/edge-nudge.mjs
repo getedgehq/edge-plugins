@@ -1,29 +1,22 @@
 #!/usr/bin/env node
+import { existsSync, readdirSync, unlinkSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+// Fails open: without the classifier next to this file, the hook stays quiet.
+const { classify } = await import('./edge-classify.mjs').catch(() => ({ classify: () => ({ nudge: false, gate: false }) }));
 
-export const NUDGE = 'If this task calls for a specialist deliverable or workflow, call edge.find_skill before starting and compare its candidates with local skills; skip it for routine coding and small edits. If Edge is unavailable, continue locally.';
-// A request to produce or analyse something (a deliverable), not a small edit,
-// a quick question or a reply. The model makes the final call; the sentence is
-// conditional. Activation plan C, 2026-10-02: tuned on evals/activation-trigger
-// prompts.json and heldout.json, measured once on heldout2.json.
-const DELIVERABLE = /\b(?:design|create|build|make|write|rewrite|draft|develop|produce|generate|prepare|put (?:it |this |them )?together|whip up|come up with|review|audit|analy[sz]e|analysis|research|investigate|compare|plan|forecast|plot|chart|visuali[sz]e|migrate|optimi[sz]e|secure|animate|edit|polish|redesign|improve|turn|threat[- ]model|check\b.*\bfor|set up|fit|estimate|validate|outline|cut|export)\b/i;
-const SMALL_EDIT = /^(?:please\s+|can you\s+|could you\s+)?(?:(?:fix|correct) (?:this |the |a )?(?:typo|spelling)|rename\b|delete\b|remove (?:the )?(?:unused|extra|duplicate|trailing)|bump\b|sort\b|format\b|move (?:the )?\S+(?: \S+)? (?:link |button |item )?(?:before|after|above|below)|add (?:a |an )?(?:comment|print|log|console\.log|docstring|todo|import|newline|semicolon)|(?:change|make) (?:the )?(?:\S+ )?(?:button |error |footer |header )?(?:text|message|label|title|colou?r|font size)\b|change (?:the )?(?:button )?text\b)/i;
-const QUESTION = /^(?:what|how|why|when|where|who|which|is|are|does|do)\b[^.!]*\?$/i;
-const FILE = /\.(?:csv|xlsx?|parquet|ipynb|pptx?|key|mp4|mov|webm|fig|tf)\b|\b(?:xlsx|docx|pptx|pdf|parquet)\b/i;
-
+export const NUDGE = 'Edge\'s local check sees specialist work in this request (writing for an audience, strategy, sales, negotiation, finance, research, design, data, media or a named framework). Before you answer or act, call edge.find_skill once with the user\'s request, load a fitting candidate with use_skill, then do the task. Skip Edge for routine coding and small edits, when the user said not to use it, or if it is unavailable.';
+// Funnel Step 1 classifier v2 (hooks/edge-classify.mjs): explicit opt-out,
+// trivial bounded operations, chat, simple facts and explanations stay quiet;
+// specialist work scored over feature families nudges. The sentence states
+// that check and names business and writing work too: the conditional
+// "if this task calls for a specialist deliverable" wording let Claude decide a
+// LinkedIn post, negotiation prep or cap table was not specialist and skip Edge
+// (activation-gap lane, 2026-10-10). The model still makes the final call
+// through the skip clause.
 export function shouldNudge(prompt) {
-  if (typeof prompt !== 'string') return false;
-  const text = prompt.trim().slice(0, 32_768);
-  if (text.length < 12 || text.split(/\s+/, 5).length < 4) return false;
-  if (/^(?:hi|hello|hey|thanks|thank you|ok|okay|yes|no)\b[^.?!]{0,30}[.!?\s]*$/i.test(text)) return false;
-  if (/^(?:stop\b|(?:can you )?repeat\b|summari[sz]e .*\b(?:conversation|session)\b|(?:what is|tell me) (?:your |the )?(?:status|progress)\b)/i.test(text)) return false;
-  // A short explanation or a mechanical edit stays quiet; an explicit second
-  // work request after it is evaluated on its own.
-  const followup = text.split(/\b(?:and then|then|also)\b/i).slice(1).join(' ');
-  const simple = SMALL_EDIT.test(text) || QUESTION.test(text) ||
-    /^(?:please\s+)?(?:what (?:does|is)\b|explain (?:this|the difference)\b|(?:show|give me) (?:the |a )?(?:git )?command\b|how do i (?:undo|revert|list)\b)/i.test(text);
-  if (simple) return Boolean(followup && DELIVERABLE.test(followup));
-  return DELIVERABLE.test(text) || FILE.test(text);
+  return classify(prompt).nudge;
 }
 
 /** EDGE_NUDGE=off silences the hook without uninstalling it. */
@@ -33,9 +26,33 @@ export function hookOutput(input, env = process.env) {
     : undefined;
 }
 
+/** The first nudge of a UTC day leaves one empty marker, nudge-day-YYYY-MM-DD,
+ *  in the connector's state directory (src/activation.ts). The local connector
+ *  sends it as that day's nudge_fired_day signal (src/presence.ts) and keeps it
+ *  as .sent, so later nudges that day write nothing. The name is the only
+ *  content: no prompt, score, category or count. Only where a local connector
+ *  has created its install id; EDGE_TELEMETRY=0 writes nothing. */
+export function markNudgeDay(env = process.env, now = Date.now()) {
+  if (['0', 'off', 'false', 'no'].includes(String(env.EDGE_TELEMETRY ?? '').trim().toLowerCase())) return false;
+  const dir = env.EDGE_INSTALL_STATE_DIR || join(homedir(), '.config', 'edge');
+  if (!existsSync(join(dir, 'install-id'))) return false;
+  const marker = join(dir, `nudge-day-${new Date(now).toISOString().slice(0, 10)}`);
+  if (existsSync(`${marker}.sent`)) return false;
+  try { writeFileSync(marker, '', { flag: 'wx', mode: 0o600 }); }
+  catch { return false; }
+  // Where no connector sends them (the hosted plugin alone), markers would
+  // pile up: a new day's marker clears those older than the connector sends.
+  try {
+    const oldest = `nudge-day-${new Date(now - 7 * 86_400_000).toISOString().slice(0, 10)}`;
+    for (const name of readdirSync(dir)) if (/^nudge-day-\d{4}-\d{2}-\d{2}(\.sent)?$/.test(name) && name.slice(0, 20) < oldest) unlinkSync(join(dir, name));
+  } catch { /* housekeeping only */ }
+  return true;
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  // No network, filesystem reads, prompt logging or child processes. Malformed,
-  // oversized or stalled input fails open. Never emit a blocking decision.
+  // No network, prompt logging or child processes; the only file it writes is
+  // the empty day marker above. Malformed, oversized or stalled input fails
+  // open. Never emit a blocking decision.
   let input = '';
   const finish = () => process.exit(0);
   const timer = setTimeout(finish, 250);
@@ -50,7 +67,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     clearTimeout(timer);
     try {
       const output = hookOutput(JSON.parse(input));
-      if (output) { process.stdout.write(JSON.stringify(output) + '\n', finish); return; }
+      if (output) {
+        try { markNudgeDay(); } catch { /* measurement only */ }
+        process.stdout.write(JSON.stringify(output) + '\n', finish);
+        return;
+      }
     } catch { /* Optional advice must never interrupt the user's task. */ }
     finish();
   });
