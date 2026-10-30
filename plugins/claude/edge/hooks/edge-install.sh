@@ -4,19 +4,34 @@
 # Always sends X-Edge-Transport: plugin_http, a fixed value that tells Edge this
 # connection is the plugin's hosted connector (connectorTransport on its events,
 # FUNNEL-FIX-PLAN Amendment 17). It carries nothing about the user or machine.
-# Also sends the install id that `npx @getedge/mcp setup claude` already created,
-# so plugin searches belong to that install like the npm connector's do, and
-# `npx @getedge/mcp forget` deletes them with the rest. It never creates an id:
-# without setup the connector stays session-only, as before.
+# Also sends the plugin's random install id as X-Edge-Install, so plugin searches
+# and free tool credits belong to this install like the npm connector's do, and
+# `npx @getedge/mcp forget` deletes them with the rest. The id lives in
+# ~/.config/edge/install-id, the same file `npx @getedge/mcp setup` uses: setup's
+# id is reused, and without setup the first connection creates one (16 random
+# bytes as hex, mode 600, nothing about the machine), the same way setup does.
 # Sends the stored first-touch ref (including its visit token) as X-Edge-Ref.
-# Reads only install-id and install-ref; no network and no logging. Prints only the
-# transport header on anything unexpected so the connection never fails because
-# of this script. EDGE_INSTALL_HEADER=off stops sending both install and ref.
+# No network and no logging. Prints only the transport header on anything
+# unexpected so the connection never fails because of this script.
+# EDGE_INSTALL_HEADER=off stops sending both install and ref, and creates nothing.
 id=
 ref=
 if [ "${EDGE_INSTALL_HEADER:-}" != off ]; then
   dir=${EDGE_INSTALL_STATE_DIR:-${HOME:-}/.config/edge}
   id=$(head -c 64 "$dir/install-id" 2>/dev/null | tr -d ' \t\r\n')
+  if [ -z "$id" ] && { [ -n "${EDGE_INSTALL_STATE_DIR:-}" ] || [ -n "${HOME:-}" ]; }; then
+    # Create the id once. ln is atomic and never replaces an existing file, so
+    # concurrent starts (and a setup running at the same time) end on one id.
+    new=$(od -An -tx1 -N16 /dev/urandom 2>/dev/null | tr -d ' \n')
+    if [ ${#new} -eq 32 ] && (umask 077; mkdir -p "$dir") 2>/dev/null; then
+      tmp="$dir/.install-$$-$new"
+      if (umask 077; printf '%s' "$new" > "$tmp") 2>/dev/null; then
+        ln "$tmp" "$dir/install-id" 2>/dev/null
+        rm -f "$tmp"
+      fi
+      id=$(head -c 64 "$dir/install-id" 2>/dev/null | tr -d ' \t\r\n')
+    fi
+  fi
   ref=$(head -c 42 "$dir/install-ref" 2>/dev/null | tr -d '\r\n')
   # The stored first touch wins; EDGE_REF also works before setup has run.
   ref=${ref:-${EDGE_REF:-}}
